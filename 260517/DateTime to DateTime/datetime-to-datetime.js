@@ -1,4 +1,4 @@
-const fs = require("fs");
+/* const fs = require("fs");
 const input = fs.readFileSync(0).toString().trim().split('\n');
 
 const [A, B, C] = input[0].split(' ').map(Number);
@@ -46,4 +46,21 @@ while (true) {
     break;
 }
 
-console.log(total_minuites);
+console.log(total_minuites); */
+
+
+
+
+const fs = require("fs");
+const input = fs.readFileSync(0).toString().trim().split('\n');
+const [A, B, C] = input[0].split(' ').map(Number);
+
+// 1. 기준 시간(11일 11시 11분)과 입력 시간을 모두 '분' 단위로 환산합니다.
+const startMinutes = (11 * 24 * 60) + (11 * 60) + 11;
+const targetMinutes = (A * 24 * 60) + (B * 60) + C;
+
+// 2. 차이를 계산합니다.
+const result = targetMinutes - startMinutes;
+
+// 3. 음수면 기준보다 앞선 시간이므로 -1을 출력하고, 아니면 결과값을 출력합니다.
+console.log(result < 0 ? -1 : result);
