@@ -24,7 +24,7 @@ const arrShake = new Array(n + 2).fill(k)
 
 
 // t 번의 줄 동안 반복해서 input값을 받는다. 
-for (let i = 0; i < shakes.length; i++) {
+for (let i = 0; i < t; i++) {
     // x, y 값 대입
     let x = shakes[i].person1;
     let y = shakes[i].person2;
