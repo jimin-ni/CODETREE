@@ -1,0 +1,88 @@
+/* const fs = require("fs");
+const input = fs.readFileSync(0).toString().trim().split('\n');
+
+const [A, B, C] = input[0].split(' ').map(Number);
+
+// Please write your code here.
+
+let days = 0;
+let days_hours = 0;
+let hours_p = 0;
+let hours_m = 0;
+let minuites_p = 0;
+let minuites_m = 0;
+let total_minuites = 0;
+
+
+while (true) {
+
+    if (((A * 24 * 60) + (B * 60) + C) < ((11 * 24 * 60) + (11 * 60) + 11)) {
+        total_minuites = -1
+        break;
+    }
+
+    // 일수 계산
+    if (A - 11 != 0) {
+        // 만약 A가 11일보다 크다면
+        days = A - 11;
+        days_hours = days * 24;
+    }
+
+    if (B > 11) {
+        hours_p = B - 11
+    } else {
+        hours_m = 11 - B
+    }
+
+    if (C > 11) {
+        minuites_p = C - 11
+    } else {
+        minuites_m = 11 - C
+    }
+
+    total_minuites = (days_hours * 60)
+        + (hours_p * 60) - (hours_m * 60)
+        + (minuites_p) - (minuites_m)
+    break;
+}
+
+console.log(total_minuites); */
+
+
+/*
+const fs = require("fs");
+const input = fs.readFileSync(0).toString().trim().split('\n');
+const [A, B, C] = input[0].split(' ').map(Number);
+
+// 1. 기준 시간(11일 11시 11분)과 입력 시간을 모두 '분' 단위로 환산합니다.
+const startMinutes = (11 * 24 * 60) + (11 * 60) + 11;
+const targetMinutes = (A * 24 * 60) + (B * 60) + C;
+
+// 2. 차이를 계산합니다.
+const result = targetMinutes - startMinutes;
+
+// 3. 음수면 기준보다 앞선 시간이므로 -1을 출력하고, 아니면 결과값을 출력합니다.
+console.log(result < 0 ? -1 : result);
+*/
+
+const fs = require("fs");
+const input = fs.readFileSync(0).toString().trim().split('\n');
+const [A, B, C] = input[0].split(' ').map(Number);
+
+// 11시 11분을 분으로 변환
+let leftMin = 11 * 60 + 11
+
+// 사이의 일수 계선
+let leftDays = A - 11
+
+// B시간 C분을 분으로 변환
+let leftMin2 = B * 60 + C
+
+let answer = (leftDays * 24 * 60) + (leftMin2 - leftMin)
+
+// 만약 11일 11시 11분보다 A일 B시 C분 전이라면? -1 도출
+if (answer < 0) {
+    console.log(-1)
+} else {
+    console.log(answer)
+}
