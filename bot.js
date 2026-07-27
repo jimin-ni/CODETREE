@@ -156,7 +156,7 @@ async function main() {
     console.log(`캡처 URL: ${folderUrl}`);
     const imgPath = await captureePage(folderUrl);
     const today = getKSTDate();
-    await sendImage(imgPath, `✅ **${today} 커밋 완료!**\n${folderUrl}`);
+    await sendImage(imgPath, `✅ **${today} 커밋 완료!**`);
     console.log('디스코드 전송 완료');
     return;
   }
