@@ -14,9 +14,7 @@ const REPO = 'jimin-ni/CODETREE';
 const BRANCH = 'main';
 const TARGET_PATH = 'trail2';
 
-// ───────────────────────────────────────────
-// 유틸: KST 날짜 문자열 반환
-// ───────────────────────────────────────────
+//  KST 날짜 문자열 반환
 function getKSTDate(offsetDays = 0) {
   const now = new Date();
   now.setHours(now.getHours() + 9); // UTC → KST
@@ -35,16 +33,12 @@ function getKSTHour() {
   return now.getHours();
 }
 
-// ───────────────────────────────────────────
-// 유틸: Discord 웹훅 메시지 전송
-// ───────────────────────────────────────────
+// Discord 웹훅 메시지 전송
 async function sendMessage(content) {
   await axios.post(`${WEBHOOK_URL}?thread_id=${THREAD_ID}`, { content });
 }
 
-// ───────────────────────────────────────────
-// 유틸: Discord 웹훅 이미지 전송
-// ───────────────────────────────────────────
+// Discord 웹훅 이미지 전송
 async function sendImage(imagePath, content = '') {
   const FormData = require('form-data');
   const form = new FormData();
@@ -56,9 +50,7 @@ async function sendImage(imagePath, content = '') {
   });
 }
 
-// ───────────────────────────────────────────
-// 유틸: penalty.json 읽기/쓰기
-// ───────────────────────────────────────────
+// penalty.json 읽기/쓰기
 function loadPenalty() {
   if (!fs.existsSync(PENALTY_FILE)) {
     return { totalAmount: 0, dates: [] };
@@ -70,13 +62,11 @@ function savePenalty(data) {
   fs.writeFileSync(PENALTY_FILE, JSON.stringify(data, null, 2), 'utf-8');
 }
 
-// ───────────────────────────────────────────
 // GitHub API: 오늘 trail2에 커밋 있었는지 확인
-// ───────────────────────────────────────────
 async function getTodayCommits() {
   const kstNow = new Date();
   kstNow.setHours(kstNow.getHours() + 9);
-  const dateStr = kstNow.toISOString().slice(0, 10); // YYYY-MM-DD
+  const dateStr = kstNow.toISOString().slice(0, 10); 
 
   const since = `${dateStr}T00:00:00+09:00`;
   const until = `${dateStr}T23:59:59+09:00`;
@@ -88,9 +78,7 @@ async function getTodayCommits() {
   return res.data; // 커밋 배열
 }
 
-// ───────────────────────────────────────────
 // GitHub API: 최신 커밋에서 trail2 내 새 폴더 URL 추출
-// ───────────────────────────────────────────
 async function getNewFolderUrl(sha) {
   const url = `https://api.github.com/repos/${REPO}/commits/${sha}`;
   const res = await axios.get(url, {
@@ -109,9 +97,7 @@ async function getNewFolderUrl(sha) {
   return null;
 }
 
-// ───────────────────────────────────────────
-// Playwright: 페이지 캡처
-// ───────────────────────────────────────────
+//  페이지 캡처
 async function captureePage(url) {
   const browser = await chromium.launch();
   const page = await browser.newPage();
@@ -127,9 +113,7 @@ async function captureePage(url) {
   return screenshotPath;
 }
 
-// ───────────────────────────────────────────
-// 벌금 메시지 생성
-// ───────────────────────────────────────────
+// 벌금 메시지 
 function buildPenaltyMessage(penalty) {
   const today = getKSTDate();
   const totalAmount = penalty.totalAmount;
@@ -137,9 +121,7 @@ function buildPenaltyMessage(penalty) {
   return `${today}\n\n* 누적 벌금: ${totalAmount}원\n* 누적일: ${dates}`;
 }
 
-// ───────────────────────────────────────────
 // 메인 로직
-// ───────────────────────────────────────────
 async function main() {
   console.log(`Event: ${EVENT_NAME}, KST Hour: ${getKSTHour()}`);
 
@@ -181,7 +163,7 @@ async function main() {
     // 자정(00시) 체크 → 전날 커밋 여부 확인
     if (hour === 0) {
       console.log('자정 체크 → 어제 커밋 확인');
-      const commits = await getTodayCommits(); // 이미 날짜가 바뀌었으므로 어제 날짜로 조회 필요
+      const commits = await getTodayCommits(); 
       // 어제 날짜로 재조회
       const kstYesterday = new Date();
       kstYesterday.setHours(kstYesterday.getHours() + 9 - 24);
@@ -196,7 +178,7 @@ async function main() {
         console.log('어제 커밋 없음 → 벌금 누적');
         const penalty = loadPenalty();
         penalty.totalAmount += 200;
-        penalty.dates.push(getKSTDate(-1)); // 어제 날짜
+        penalty.dates.push(getKSTDate(-1)); 
         savePenalty(penalty);
 
         const msg = buildPenaltyMessage(penalty);
