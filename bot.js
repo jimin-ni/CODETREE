@@ -68,7 +68,7 @@ async function getTodayCommits() {
   kstNow.setHours(kstNow.getHours() + 9);
   const dateStr = kstNow.toISOString().slice(0, 10); 
 
-  const since = `${dateStr}T00:00:00+09:00`;
+  const since = `${dateStr}T00:00:00+00:01`;
   const until = `${dateStr}T23:59:59+09:00`;
 
   const url = `https://api.github.com/repos/${REPO}/commits?sha=${BRANCH}&path=${TARGET_PATH}&since=${since}&until=${until}`;
