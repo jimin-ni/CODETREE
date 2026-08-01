@@ -125,14 +125,6 @@ async function capturePage(url) {
   return screenshotPath;
 }
 
-// ───────────────────────────────────────────
-// 벌금 메시지 생성
-// ───────────────────────────────────────────
-function buildPenaltyMessage(penalty) {
-  const today = getKSTDate();
-  const dates = penalty.dates.join(', ');
-  return `${today}\n\n* 누적 벌금: ${penalty.totalAmount}원\n* 누적일: ${dates}`;
-}
 
 // ───────────────────────────────────────────
 // 메인 로직
@@ -168,43 +160,6 @@ async function main() {
       console.log('초기화 완료');
       return;
     }
-
-    // 23시 체크 (GitHub Actions 지연 고려해서 22~23시 범위)
-    if (kstHour >= 22 && kstHour <= 23) {
-      console.log('23시 체크 → 오늘 커밋 확인');
-      const todayStr = getKSTDateStr(0);
-      const commits = await getCommitsOnDate(todayStr);
-      if (commits.length === 0) {
-        await sendMessage(`<@${USER_ID}> ⚠️ 오늘 아직 커밋이 없어요! 자정 전에 올려주세요 🔥`);
-        console.log('경고 메시지 전송 완료');
-      } else {
-        console.log('커밋 있음 → 경고 없음');
-      }
-      return;
-    }
-
-    // 자정 체크 (GitHub Actions 지연 고려해서 00~01시 범위)
-    // 단, 1일 초기화와 겹치지 않도록 1일은 초기화만 처리
-    if (kstHour >= 0 && kstHour <= 1 && kstDay !== 1) {
-      console.log('자정 체크 → 어제 커밋 확인');
-      const yesterdayStr = getKSTDateStr(-1);
-      const yesterdayCommits = await getCommitsOnDate(yesterdayStr);
-
-      if (yesterdayCommits.length === 0) {
-        console.log('어제 커밋 없음 → 벌금 누적');
-        const penalty = loadPenalty();
-        penalty.totalAmount += 200;
-        penalty.dates.push(getKSTDate(-1));
-        savePenalty(penalty);
-        const msg = buildPenaltyMessage(penalty);
-        await sendMessage(`❌ **1일 커밋 미달 벌금 발생!**\n\n${msg}`);
-        console.log('벌금 메시지 전송 완료');
-      } else {
-        console.log('어제 커밋 있음 → 벌금 없음');
-      }
-      return;
-    }
-
     console.log(`KST ${kstHour}시 → 해당 없는 시간대, 종료`);
   }
 }
