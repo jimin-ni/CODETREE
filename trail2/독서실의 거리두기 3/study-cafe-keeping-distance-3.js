@@ -1,34 +1,39 @@
 const fs = require("fs");
 const input = fs.readFileSync(0).toString().trim().split('\n');
-
+const INT_MAX = Number.MAX_SAFE_INTEGER;
 const n = Number(input[0]);
 const seats = input[1].split("").map(Number);
 
-// 1과 1 사이의 거리가 최대가 되도록 한다. 
-// 가장 가까운 두 사람의 거리의 최댓값 출력
-
-
-let maxMinDist = 0
-
+let maxDist = 0;
+let [maxI, maxJ] = [-1, -1];
 for (let i = 0; i < n; i++) {
-    if (seats[i] === 0) {
-        // 비어있는 자리다
-        seats[i] = 1
-
-        //현재 배치 상태에서 가장 가까운 두 사람 간의 거리를 구한다
-        let minDist = Infinity;
-        let lastOneIdx = -1;
-        for (let j = 0; j < n; j++) {
+    if (seats[i] === 1) {
+        for (let j = i + 1; j < n; j++) {
             if (seats[j] === 1) {
-                if (lastOneIdx !== -1) {
-                    minDist = Math.min(minDist, j - lastOneIdx);
+                if (j - i > maxDist) {
+                    maxDist = j - i;
+                    [maxI, maxJ] = [i, j];
                 }
-                lastOneIdx = j;
+
+                break;
             }
         }
-        maxMinDist = Math.max(maxMinDist, minDist)
-        seats[i] = 0
     }
 }
 
-console.log(maxMinDist)
+const mid = maxI + Math.floor(maxDist / 2);
+seats[mid] = 1;
+
+let ans = INT_MAX;
+for (let i = 0; i < n; i++) {
+    if (seats[i] === 1) {
+        for (let j = i + 1; j < n; j++) {
+            if (seats[j] === 1) {
+                ans = Math.min(ans, j - i);
+                break;
+            }
+        }
+    }
+}
+
+console.log(ans);
