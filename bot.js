@@ -12,7 +12,7 @@ const COMMIT_SHA = process.env.GITHUB_SHA;
 const PENALTY_FILE = path.join(__dirname, 'penalty.json');
 const REPO = 'jimin-ni/CODETREE';
 const BRANCH = 'main';
-const TARGET_PATH = 'trail2';
+const TARGET_PATH = ['trail2', 'trail3'];
 
 // ───────────────────────────────────────────
 // KST 시간 계산
@@ -91,9 +91,19 @@ function resetPenalty() {
 async function getCommitsOnDate(kstDateStr) {
   const since = `${kstDateStr}T00:00:00+09:00`;
   const until = `${kstDateStr}T23:59:59+09:00`;
-  const url = `https://api.github.com/repos/${REPO}/commits?sha=${BRANCH}&path=${TARGET_PATH}&since=${since}&until=${until}`;
-  const res = await axios.get(url, { headers: { 'User-Agent': 'codetree-bot' } });
-  return res.data;
+
+  // trail2, trail3 각각 조회 후 합치기
+  const results = await Promise.all(
+    TARGET_PATHS.map(targetPath => {
+      const url = `https://api.github.com/repos/${REPO}/commits?sha=${BRANCH}&path=${targetPath}&since=${since}&until=${until}`;
+      return axios.get(url, { headers: { 'User-Agent': 'codetree-bot' } }).then(r => r.data);
+    })
+  );
+
+  // 두 결과 합쳐서 중복 제거 (sha 기준)
+  const allCommits = results.flat();
+  const unique = [...new Map(allCommits.map(c => [c.sha, c])).values()];
+  return unique;
 }
 
 async function getNewFolderUrl(sha) {
@@ -101,10 +111,12 @@ async function getNewFolderUrl(sha) {
   const res = await axios.get(url, { headers: { 'User-Agent': 'codetree-bot' } });
   const files = res.data.files || [];
   for (const file of files) {
-    const match = file.filename.match(/^trail2\/([^/]+)\//);
+    // trail2 또는 trail3 폴더 감지
+    const match = file.filename.match(/^(trail2|trail3)\/([^/]+)\//);
     if (match) {
-      const folderName = match[1];
-      return `https://github.com/${REPO}/tree/${BRANCH}/trail2/${encodeURIComponent(folderName)}`;
+      const trailFolder = match[1]; // 'trail2' or 'trail3'
+      const folderName = match[2];
+      return `https://github.com/${REPO}/tree/${BRANCH}/${trailFolder}/${encodeURIComponent(folderName)}`;
     }
   }
   return null;
